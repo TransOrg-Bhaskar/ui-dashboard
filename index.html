@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Analytics KPI Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Call Analytics KPI Dashboard</h1>
+            <div class="file-input-container">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="csvFileInput" accept=".csv">
+                    <label class="custom-file-label" for="csvFileInput">Choose CSV file</label>
+                </div>
+                <button id="submitButton" class="btn btn-success ml-3">Generate Charts</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-item">
+                <h2>Speech Score</h2>
+                <canvas id="gaugeChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('gaugeChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Average Words per Minute (WPM)</h2>
+                <canvas id="wpmChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('wpmChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Average Syllables per Minute (SPM)</h2>
+                <canvas id="spmChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('spmChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Sentiment Analysis</h2>
+                <canvas id="sentimentChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('sentimentChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Call Clarity</h2>
+                <canvas id="clarityChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('clarityChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Agent Enthusiasm</h2>
+                <canvas id="enthusiasmChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('enthusiasmChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Agent Empathy</h2>
+                <canvas id="empathyChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('empathyChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+            <div class="chart-item">
+                <h2>Call Duration</h2>
+                <canvas id="durationChart"></canvas>
+                <button class="btn download-btn" onclick="downloadChart('durationChart')">
+                    <img src="download-icon.png" alt="Download" />
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
