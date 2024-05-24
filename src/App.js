@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container, AppBar, Toolbar, Typography, Button, Grid, Card, CardContent, TextField, MenuItem, Select, FormControl, InputLabel, Paper, Box } from '@mui/material';
-import { Line, Radar, Bar, Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, RadialLinearScale, BarElement, Tooltip, Legend, ArcElement, TimeScale } from 'chart.js';
+import { Line, Radar, Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, RadialLinearScale, BarElement, Tooltip, Legend, TimeScale } from 'chart.js';
 import Papa from 'papaparse';
+import GaugeChart from 'react-gauge-chart';
 import 'chartjs-adapter-date-fns';
 
-ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, RadialLinearScale, BarElement, Tooltip, Legend, ArcElement, TimeScale);
+ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, RadialLinearScale, BarElement, Tooltip, Legend, TimeScale);
 
 const dataLabelsPlugin = {
   id: 'dataLabels',
@@ -23,7 +24,7 @@ const dataLabelsPlugin = {
           const dataString = dataset.data[dataIndex].toString();
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          const padding = 10;  // Increased padding to prevent collision
+          const padding = 10;
           const position = element.tooltipPosition();
           ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
         });
@@ -223,50 +224,18 @@ function App() {
     return '#e74c3c';
   };
 
-  const createGaugeData = (value) => ({
-    labels: ['Filled', 'Empty'],
-    datasets: [
-      {
-        data: [value, 1 - value],
-        backgroundColor: [
-          getColorForValue(value),
-          '#e0e0e0'
-        ],
-        hoverBackgroundColor: [
-          getColorForValue(value),
-          '#e0e0e0'
-        ],
-        borderWidth: 0,
-      }
-    ],
-  });
-
-  const gaugeOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '80%',
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        enabled: false
-      }
-    }
-  };
-
   return (
     <Box sx={{ padding: '20px', backgroundColor: '#f3f4f6', boxShadow: 3 }}>
       <Container sx={{ backgroundColor: '#ffffff', padding: '20px', boxShadow: 3, borderRadius: '8px' }}>
-        <AppBar position="static" sx={{ backgroundColor: '#ff6f00', height: '150px', justifyContent: 'center', boxShadow: 'none', borderRadius: '8px 8px 0 0' }}>
+        <AppBar position="static" sx={{ backgroundColor: '#d4763b', height: '150px', justifyContent: 'center', boxShadow: 'none', borderRadius: '8px 8px 0 0' }}>
           <Toolbar sx={{ justifyContent: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img src="logo.png" alt="Company Logo" style={{ width: '150px', marginRight: '15px' }} />
+              <img src="logo.png" alt="Company Logo" style={{ width: '250px', marginRight: '15px' }} /> {/* Increased logo size */}
               <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: '2rem', textAlign: 'center' }}>ICICI Lombard - KPI Dashboard</Typography>
             </Box>
           </Toolbar>
         </AppBar>
-        <Box sx={{ margin: '20px 0', padding: '20px', backgroundColor: '#ffecd1', borderRadius: '0 0 8px 8px', boxShadow: 3 }}>
+        <Box sx={{ margin: '20px 0', padding: '20px', backgroundColor: '#ffecd1', borderRadius: '8px', boxShadow: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
@@ -298,7 +267,7 @@ function App() {
               />
             </Grid>
             <Grid item xs={12} sm={3} display="flex" alignItems="center" justifyContent="center">
-              <Button variant="contained" color="primary" onClick={applyFilters} sx={{ backgroundColor: '#ff6f00', height: '56px', width: '100%' }}>Go</Button>
+              <Button variant="contained" color="primary" onClick={applyFilters} sx={{ backgroundColor: '#d4763b', height: '56px', width: '100%' }}>Go</Button>
             </Grid>
           </Grid>
         </Box>
@@ -309,10 +278,14 @@ function App() {
                 <Typography variant="h5" sx={{ color: '#e74c3c' }}>Call Sentiment</Typography>
                 {filteredData.length > 0 && (
                   <div style={{ position: 'relative', width: '100%', height: '200px' }}>
-                    <Doughnut data={createGaugeData(filteredData.reduce((sum, d) => sum + parseFloat(d.CallSentiment), 0) / filteredData.length)} options={gaugeOptions} />
-                    <Typography variant="h6" sx={{ color: '#27ae60', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                      {(filteredData.reduce((sum, d) => sum + parseFloat(d.CallSentiment), 0) / filteredData.length).toFixed(2)}
-                    </Typography>
+                    <GaugeChart
+                      id="call-sentiment-gauge"
+                      nrOfLevels={20}
+                      percent={filteredData.reduce((sum, d) => sum + parseFloat(d.CallSentiment), 0) / filteredData.length}
+                      textColor="#27ae60"
+                      colors={['#e74c3c', '#f39c12', '#27ae60']}
+                      arcWidth={0.3}
+                    />
                   </div>
                 )}
                 {filteredData.length === 0 && <Typography variant="h6" sx={{ color: '#27ae60', marginTop: '10px' }}>N/A</Typography>}
@@ -325,10 +298,14 @@ function App() {
                 <Typography variant="h5" sx={{ color: '#e74c3c' }}>Agent Enthusiasm</Typography>
                 {filteredData.length > 0 && (
                   <div style={{ position: 'relative', width: '100%', height: '200px' }}>
-                    <Doughnut data={createGaugeData(filteredData.reduce((sum, d) => sum + parseFloat(d.AgentEnthusiasm), 0) / filteredData.length)} options={gaugeOptions} />
-                    <Typography variant="h6" sx={{ color: '#27ae60', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                      {(filteredData.reduce((sum, d) => sum + parseFloat(d.AgentEnthusiasm), 0) / filteredData.length).toFixed(2)}
-                    </Typography>
+                    <GaugeChart
+                      id="agent-enthusiasm-gauge"
+                      nrOfLevels={20}
+                      percent={filteredData.reduce((sum, d) => sum + parseFloat(d.AgentEnthusiasm), 0) / filteredData.length}
+                      textColor="#27ae60"
+                      colors={['#e74c3c', '#f39c12', '#27ae60']}
+                      arcWidth={0.3}
+                    />
                   </div>
                 )}
                 {filteredData.length === 0 && <Typography variant="h6" sx={{ color: '#27ae60', marginTop: '10px' }}>N/A</Typography>}
@@ -341,10 +318,14 @@ function App() {
                 <Typography variant="h5" sx={{ color: '#e74c3c' }}>Empathy</Typography>
                 {filteredData.length > 0 && (
                   <div style={{ position: 'relative', width: '100%', height: '200px' }}>
-                    <Doughnut data={createGaugeData(filteredData.reduce((sum, d) => sum + parseFloat(d.Empathy), 0) / filteredData.length)} options={gaugeOptions} />
-                    <Typography variant="h6" sx={{ color: '#27ae60', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                      {(filteredData.reduce((sum, d) => sum + parseFloat(d.Empathy), 0) / filteredData.length).toFixed(2)}
-                    </Typography>
+                    <GaugeChart
+                      id="empathy-gauge"
+                      nrOfLevels={20}
+                      percent={filteredData.reduce((sum, d) => sum + parseFloat(d.Empathy), 0) / filteredData.length}
+                      textColor="#27ae60"
+                      colors={['#e74c3c', '#f39c12', '#27ae60']}
+                      arcWidth={0.3}
+                    />
                   </div>
                 )}
                 {filteredData.length === 0 && <Typography variant="h6" sx={{ color: '#27ae60', marginTop: '10px' }}>N/A</Typography>}
@@ -355,7 +336,7 @@ function App() {
         <Grid container spacing={3} sx={{ marginBottom: '60px' }}>
           <Grid item xs={12} sm={8}>
             <Paper elevation={3} sx={{ padding: '20px', height: '100%' }}>
-              <Typography variant="h6">KPI Trend</Typography>
+              <Typography variant="h6">Sentiment Trend</Typography>
               {kpiData && (
                 <Line
                   data={kpiData}
@@ -383,7 +364,7 @@ function App() {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper elevation={3} sx={{ padding: '20px', height: '100%' }}>
-              <Typography variant="h6">Overall KPI</Typography>
+              <Typography variant="h6">Overall Sentiment</Typography>
               {radarData && <Radar data={radarData} />}
             </Paper>
           </Grid>
@@ -424,7 +405,7 @@ function App() {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper elevation={3} sx={{ padding: '20px', height: '500px' }}>
-              <Typography variant="h6" sx={{ textAlign: 'center', marginBottom: '10px' }}>Distribution of KPI</Typography>
+              <Typography variant="h6" sx={{ textAlign: 'center', marginBottom: '10px' }}>Correctness of Call</Typography>
               <div style={{ height: '450px', width: '100%' }}>
                 {barData && (
                   <Bar 
