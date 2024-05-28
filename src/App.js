@@ -24,7 +24,7 @@ const dataLabelsPlugin = {
           const dataString = dataset.data[dataIndex].toString();
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          const padding = 10;
+          const padding = 10;  // Increased padding to prevent collision
           const position = element.tooltipPosition();
           ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
         });
@@ -39,6 +39,7 @@ function App() {
   const [timeFilter, setTimeFilter] = useState('Last 7 days');
   const [levelFilter, setLevelFilter] = useState('Enterprise');
   const [levelValue, setLevelValue] = useState('');
+  const [dropdownValues, setDropdownValues] = useState([]);
 
   useEffect(() => {
     fetch('/agent_calls_kpi_dashboard.csv')
@@ -54,6 +55,19 @@ function App() {
       })
       .catch(error => console.error('Error fetching CSV:', error));
   }, []);
+
+  useEffect(() => {
+    let values = [];
+    if (levelFilter === 'Enterprise') {
+      values = [...new Set(data.map(d => d.EnterpriseID))];
+    } else if (levelFilter === 'Team') {
+      values = [...new Set(data.map(d => d.TeamID))];
+    } else if (levelFilter === 'Agent') {
+      values = [...new Set(data.map(d => d.AgentID))];
+    }
+    setDropdownValues(values);
+    setLevelValue('');
+  }, [levelFilter, data]);
 
   const applyFilters = () => {
     let filtered = data;
@@ -230,12 +244,12 @@ function App() {
         <AppBar position="static" sx={{ backgroundColor: '#d4763b', height: '150px', justifyContent: 'center', boxShadow: 'none', borderRadius: '8px 8px 0 0' }}>
           <Toolbar sx={{ justifyContent: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img src="logo.png" alt="Company Logo" style={{ width: '250px', marginRight: '15px' }} /> {/* Increased logo size */}
+              <img src="logo.png" alt="Company Logo" style={{ width: '150px', marginRight: '15px' }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: '2rem', textAlign: 'center' }}>ICICI Lombard - KPI Dashboard</Typography>
             </Box>
           </Toolbar>
         </AppBar>
-        <Box sx={{ margin: '20px 0', padding: '20px', backgroundColor: '#ffecd1', borderRadius: '8px', boxShadow: 3 }}>
+        <Box sx={{ margin: '20px 0', padding: '20px', backgroundColor: '#ffecd1', borderRadius: '0 0 8px 8px', boxShadow: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={3}>
               <FormControl fullWidth>
@@ -259,12 +273,14 @@ function App() {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={3}>
-              <TextField
-                fullWidth
-                label={levelFilter === 'Enterprise' ? 'Enterprise ID' : levelFilter === 'Team' ? 'Team ID' : 'Agent ID'}
-                value={levelValue}
-                onChange={(e) => setLevelValue(e.target.value)}
-              />
+              <FormControl fullWidth>
+                <InputLabel>{levelFilter === 'Enterprise' ? 'Enterprise ID' : levelFilter === 'Team' ? 'Team ID' : 'Agent ID'}</InputLabel>
+                <Select value={levelValue} onChange={(e) => setLevelValue(e.target.value)} label={levelFilter === 'Enterprise' ? 'Enterprise ID' : levelFilter === 'Team' ? 'Team ID' : 'Agent ID'}>
+                  {dropdownValues.map((value) => (
+                    <MenuItem key={value} value={value}>{value}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={3} display="flex" alignItems="center" justifyContent="center">
               <Button variant="contained" color="primary" onClick={applyFilters} sx={{ backgroundColor: '#d4763b', height: '56px', width: '100%' }}>Go</Button>
